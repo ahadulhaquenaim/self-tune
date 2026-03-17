@@ -1,6 +1,6 @@
 # 🎯 Self Tune
 
-> A native Linux desktop app to plan your day, track your work, and build weekly consistency.
+> A native Linux desktop app to plan your day, complete tasks, and track weekly progress.
 
 ![Platform](https://img.shields.io/badge/platform-Linux-blue?logo=linux)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -11,12 +11,11 @@
 
 ## What is Self Tune?
 
-Self Tune helps you stay consistent by giving you a simple daily ritual:
+Self Tune helps you stay consistent with a simple daily workflow:
 
-1. **Plan** — Set how you want to split your focus today (e.g. DSA 20%, Development 30%, System Design 40%, Running 10%)
-2. **Log** — At the end of the day, record what you actually did
-3. **Win** — Score ≥ 75%? You get a 🏆 **Victory** screen with confetti
-4. **Review** — The **Weekly Report** shows your consistency, win rate, and streak across the whole week
+1. **Plan** — Pull tasks from your Backlog into today's plan
+2. **Do** — Work through your tasks and mark them done directly from the plan
+3. **Review** — The **Weekly Report** shows how many tasks you completed per category across the week
 
 Plus a **Backlog** — capture everything you want to do, then pull individual tasks into any day's plan when you're ready.
 
@@ -24,10 +23,8 @@ Plus a **Backlog** — capture everything you want to do, then pull individual t
 
 ## Features
 
-- 📅 **Daily Planner** — Set focus % targets per category. Must total 100%.
-- ✅ **Daily Log** — Record actual time spent. Live score preview as you fill it in.
-- 🏆 **Victory Screen** — Animated celebration when you hit ≥75% of your plan.
-- 📊 **Weekly Report** — 7-day grid, win rate, current streak, category breakdown.
+- 📅 **Daily Planner** — See your tasks for today. Mark them done with one click.
+- 📊 **Weekly Report** — 7-day grid, tasks completed per day, category breakdown as % of total.
 - 📋 **Backlog** — Add tasks with priority (High / Medium / Low), category, and notes. Pull them into today with one click.
 - 🏷️ **Custom Categories** — Add, edit, remove categories with custom emoji and color.
 - 💾 **Offline & Private** — All data stored locally on your machine. No account, no sync, no cloud.
@@ -65,7 +62,7 @@ cat > ~/.local/share/applications/self-tune.desktop << EOF
 [Desktop Entry]
 Type=Application
 Name=Self Tune
-Exec=/home/$USER/Applications/Self Tune-1.0.0.AppImage
+Exec=/home/$USER/Applications/Self Tune-1.0.2.AppImage
 Icon=utilities-system-monitor
 Terminal=false
 Categories=Utility;
@@ -100,7 +97,7 @@ node node_modules/.bin/vite build
 node node_modules/.bin/electron-builder --linux
 
 # 5. Run it
-./release/Self\ Tune-1.0.0.AppImage
+./release/Self\ Tune-1.0.2.AppImage
 ```
 
 > The AppImage will be in `release/Self Tune-x.x.x.AppImage`
@@ -113,13 +110,7 @@ node node_modules/.bin/electron-builder --linux
 
 Go to **🏷️ Categories** → add your personal focus areas.
 
-Default categories:
-| Category | Default % |
-|----------|-----------|
-| 🧮 DSA | 20% |
-| 💻 Development | 20% |
-| 🏗️ System Design | 50% |
-| 🏃 Running | 10% |
+Default categories: 🧮 DSA, 💻 Development, 🏗️ System Design, 🏃 Running
 
 You can add anything: Reading, Leetcode, Language Learning, Gym, Writing — anything you want to track.
 
@@ -133,50 +124,20 @@ Go to **📋 Backlog** → add tasks/topics you want to work on.
 
 ### 3. Plan Your Day
 
-Go to **📅 Today's Plan** → set your focus % for each category.
+Go to **📅 Today's Plan** → see all tasks you've added for today.
 
-- Percentages must add up to **100%**
-- Today's tasks from Backlog are shown below the allocation
-- Save the plan — it's locked in for the day
+- Tasks show with their category emoji and notes
+- Click **✓ Done** to mark a task complete (also marks it done in Backlog)
+- Click **✕** to remove a task from today's plan
+- Counter shows how many tasks done vs total
 
-### 4. Log Your Work
-
-Go to **✅ Today's Log** → record what you actually did.
-
-- Set actual % per category
-- Check off completed tasks from your backlog
-- Watch your **Achievement Score** update live
-- Hit **Submit Log** — if score ≥ 75%, 🎉 Victory!
-
-### 5. Review Your Week
+### 4. Review Your Week
 
 Go to **📊 Weekly Report** → see your full week at a glance.
 
-- 7-day grid showing victories and scores
-- Consistency stats: win rate, current streak
-- Category breakdown (average % per area)
-- Detailed day-by-day view with notes
-
----
-
-## Victory Score
-
-```
-Score = (sum of min(actual%, target%) for each category) / 100
-
-Victory = Score ≥ 75%
-```
-
-**Example:**
-| Category | Target | Actual | Credit |
-|----------|--------|--------|--------|
-| DSA | 20% | 15% | 15 |
-| Development | 20% | 25% | 20 _(capped at target)_ |
-| System Design | 50% | 48% | 48 |
-| Running | 10% | 12% | 10 _(capped at target)_ |
-| **Score** | | | **93/100 = 🏆 Victory!** |
-
-Over-achieving in one area doesn't penalize you — it just doesn't give extra credit beyond the target.
+- 7-day grid showing completed task count per day
+- Stats: total tasks done, active days, average tasks/day
+- Category breakdown — e.g. DSA 40%, Dev 40%, Running 20% based on tasks completed
 
 ---
 
@@ -217,7 +178,6 @@ Contributions, issues, and feature requests are welcome!
 ### Ideas for contributions
 - [ ] Windows / macOS support
 - [ ] Data export (CSV / JSON)
-- [ ] Custom victory threshold setting
 - [ ] Notifications / reminders
 - [ ] Dark mode toggle
 - [ ] Charts for category trends over time
