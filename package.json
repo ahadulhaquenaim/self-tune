@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "A native desktop app to track your weekly progress and build consistency",
   "author": "Self Tune Contributors",
-  "homepage": "https://github.com/your-username/self-tune",
+  "homepage": "https://github.com/ahadulhaquenaim/self-tune",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/self-tune.git"
+    "url": "https://github.com/ahadulhaquenaim/self-tune.git"
   },
   "private": false,
   "main": "dist-electron/main.js",
