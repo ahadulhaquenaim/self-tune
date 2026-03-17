@@ -9,7 +9,7 @@ import WeeklyReport from './components/WeeklyReport'
 import CategoryManager from './components/CategoryManager'
 import Backlog from './components/Backlog'
 
-function Titlebar() {
+function Titlebar({ darkMode, onToggleDark }: { darkMode: boolean; onToggleDark: () => void }) {
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
   })
@@ -60,7 +60,16 @@ function randomId() {
 export default function App() {
   const [data, setData] = useState<AppData | null>(null)
   const [view, setView] = useState<View>('plan')
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') === 'dark')
   const today = getTodayString()
+
+  const toggleDark = () => {
+    setDarkMode(prev => {
+      const next = !prev
+      localStorage.setItem('theme', next ? 'dark' : 'light')
+      return next
+    })
+  }
 
   useEffect(() => {
     if (window.electronAPI) {
@@ -179,8 +188,8 @@ export default function App() {
   const todayTaskIds = todayEntry?.taskIds ?? []
 
   return (
-    <div className="app-layout">
-      <Titlebar />
+    <div className={`app-layout${darkMode ? ' dark' : ''}`}>
+      <Titlebar darkMode={darkMode} onToggleDark={toggleDark} />
       <div className="app-body">
         <Sidebar
           view={view}
@@ -189,6 +198,8 @@ export default function App() {
           weekCompletions={weekCompletions}
           backlogCount={activeBacklog}
           todayTaskCount={todayTaskIds.length}
+          darkMode={darkMode}
+          onToggleDark={toggleDark}
         />
         <main className="main-content">
           {view === 'plan' && (

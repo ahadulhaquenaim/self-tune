@@ -7,6 +7,8 @@ interface Props {
   weekCompletions: number
   backlogCount: number
   todayTaskCount: number
+  darkMode: boolean
+  onToggleDark: () => void
 }
 
 const navItems: { view: View; icon: string; label: string }[] = [
@@ -19,6 +21,7 @@ const navItems: { view: View; icon: string; label: string }[] = [
 export default function Sidebar({
   view, onChangeView, todayEntry,
   weekCompletions, backlogCount, todayTaskCount,
+  darkMode, onToggleDark,
 }: Props) {
   const todayDone = todayEntry?.completedTaskIds?.length ?? 0
   const todayTotal = todayEntry?.taskIds?.length ?? 0
@@ -57,6 +60,11 @@ export default function Sidebar({
           )}
         </div>
       ))}
+
+      <button className="night-toggle" onClick={onToggleDark}>
+        <span className="night-toggle-icon">{darkMode ? '☀️' : '🌙'}</span>
+        {darkMode ? 'Light Mode' : 'Night Mode'}
+      </button>
 
       <div className="sidebar-bottom">
         <div style={{ padding: '10px 4px', fontSize: 12, color: 'var(--text-muted)', lineHeight: 2.2 }}>
