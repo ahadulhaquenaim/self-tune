@@ -63,11 +63,11 @@ body {
   justify-content: space-between;
   height: 46px;
   padding: 0 16px 0 20px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, #4a3fd4 0%, #6c5ce7 50%, #a78bfa 100%);
+  border-bottom: 1px solid rgba(91,79,240,0.35);
   -webkit-app-region: drag;
   flex-shrink: 0;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 12px rgba(91,79,240,0.28);
 }
 .titlebar-left {
   display: flex;
@@ -75,34 +75,47 @@ body {
   gap: 10px;
   font-weight: 800;
   font-size: 15px;
-  color: var(--text);
+  color: #ffffff;
   letter-spacing: -0.01em;
 }
 .titlebar-logo {
   width: 28px; height: 28px;
-  background: linear-gradient(135deg, var(--accent), #a78bfa);
+  background: rgba(255,255,255,0.2);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 15px;
-  box-shadow: 0 2px 8px var(--accent-glow);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
-.titlebar-center { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+.titlebar-center { font-size: 13px; color: rgba(255,255,255,0.78); font-weight: 500; }
 .titlebar-controls { display: flex; gap: 6px; -webkit-app-region: no-drag; }
+
+/* Traffic-light style window buttons */
+.titlebar-controls { gap: 8px; }
 .titlebar-btn {
-  width: 28px; height: 28px;
+  width: 20px; height: 20px;
   border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 13px;
+  border-radius: 50%;
+  font-size: 9px;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  transition: background var(--transition), color var(--transition);
+  transition: filter var(--transition), transform var(--transition);
+  color: transparent;
+  font-weight: 900;
+  line-height: 1;
 }
-.titlebar-btn:hover { background: var(--surface2); color: var(--text); }
-.titlebar-btn.close:hover { background: var(--danger-dim); color: var(--danger); }
+.titlebar-controls:hover .titlebar-btn { color: rgba(0,0,0,0.5); }
+.titlebar-btn:hover { filter: brightness(0.85); transform: scale(1.15); }
+
+/* Minimize — amber */
+.titlebar-btn:nth-child(1) { background: #d4970a; }
+
+/* Maximize — forest green */
+.titlebar-btn:nth-child(2) { background: #1e9e45; }
+
+/* Close — crimson */
+.titlebar-btn.close { background: #c0392b; }
 
 /* ── Sidebar ─────────────────────────────────────────────────────────── */
 .sidebar {
