@@ -101,4 +101,7 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow()
 })
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  app.setAppUserModelId('com.selftune.app')
+  createWindow()
+})

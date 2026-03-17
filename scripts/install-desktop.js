@@ -34,12 +34,13 @@ Version=1.0
 Type=Application
 Name=Self Tune
 Comment=Track your weekly progress and build consistency
-Exec=${appImagePath}
+Exec="${appImagePath}"
 Icon=${iconPath}
 Terminal=false
 Categories=Utility;Education;
 Keywords=productivity;tracker;goals;weekly;consistency;
 StartupWMClass=Self Tune
+StartupNotify=true
 `
 
 // Install to applications
