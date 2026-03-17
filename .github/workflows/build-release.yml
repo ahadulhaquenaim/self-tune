@@ -1,0 +1,62 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Linux build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfuse2 imagemagick
+
+      - name: Build app
+        run: node node_modules/.bin/vite build
+
+      - name: Package AppImage
+        run: node node_modules/.bin/electron-builder --linux --publish never
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload AppImage
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*.AppImage
+          body: |
+            ## Self Tune ${{ github.ref_name }}
+
+            ### 📥 Download & Install
+
+            1. Download `Self.Tune-*.AppImage` below
+            2. Make it executable:
+               ```bash
+               chmod +x "Self Tune-*.AppImage"
+               ```
+            3. Run it:
+               ```bash
+               ./"Self Tune-*.AppImage"
+               ```
+
+            > **Ubuntu 22.04+ users:** If the app doesn't open, run `sudo apt install libfuse2` first.
+
+            ### What's new
+            See [CHANGELOG](https://github.com/${{ github.repository }}/commits/main) for details.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
