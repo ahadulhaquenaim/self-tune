@@ -36,5 +36,3 @@ Thumbs.db
 # TypeScript cache
 *.tsbuildinfo
 
-# Local Claude Code instructions
-CLAUDE.md
