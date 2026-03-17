@@ -4,28 +4,24 @@ interface Props {
   view: View
   onChangeView: (v: View) => void
   todayEntry?: DayEntry
-  streak: number
-  weekVictories: number
-  weekLogged: number
+  weekCompletions: number
   backlogCount: number
   todayTaskCount: number
 }
 
 const navItems: { view: View; icon: string; label: string }[] = [
   { view: 'plan', icon: '📅', label: "Today's Plan" },
-  { view: 'log', icon: '✅', label: "Today's Log" },
   { view: 'weekly', icon: '📊', label: 'Weekly Report' },
   { view: 'backlog', icon: '📋', label: 'Backlog' },
   { view: 'categories', icon: '🏷️', label: 'Categories' },
 ]
 
 export default function Sidebar({
-  view, onChangeView, todayEntry, streak,
-  weekVictories, weekLogged, backlogCount, todayTaskCount,
+  view, onChangeView, todayEntry,
+  weekCompletions, backlogCount, todayTaskCount,
 }: Props) {
-  const hasPlan = (todayEntry?.plan?.length ?? 0) > 0
-  const hasLog = (todayEntry?.log?.length ?? 0) > 0
-  const isVictory = todayEntry?.isVictory
+  const todayDone = todayEntry?.completedTaskIds?.length ?? 0
+  const todayTotal = todayEntry?.taskIds?.length ?? 0
 
   return (
     <nav className="sidebar">
@@ -38,16 +34,12 @@ export default function Sidebar({
         >
           <span className="nav-item-icon">{item.icon}</span>
           {item.label}
-          {/* Badges */}
-          {item.view === 'plan' && hasPlan && (
-            <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--success)', fontWeight: 700 }}>✓ Set</span>
-          )}
-          {item.view === 'log' && hasLog && (
+          {item.view === 'plan' && todayTotal > 0 && (
             <span style={{
               marginLeft: 'auto', fontSize: 11, fontWeight: 700,
-              color: isVictory ? 'var(--success)' : 'var(--warning)'
+              color: todayDone === todayTotal ? 'var(--success)' : 'var(--accent)',
             }}>
-              {isVictory ? '🏆' : `${todayEntry?.victoryScore}%`}
+              {todayDone}/{todayTotal}
             </span>
           )}
           {item.view === 'backlog' && backlogCount > 0 && (
@@ -67,15 +59,10 @@ export default function Sidebar({
       ))}
 
       <div className="sidebar-bottom">
-        {streak > 0 && (
-          <div className="streak-badge">
-            <span>🔥</span>
-            <span>{streak} day{streak !== 1 ? 's' : ''} streak</span>
-          </div>
-        )}
         <div style={{ padding: '10px 4px', fontSize: 12, color: 'var(--text-muted)', lineHeight: 2.2 }}>
-          <div>This week: <strong style={{ color: 'var(--text-secondary)' }}>{weekVictories}/7</strong> victories</div>
-          <div>Logged: <strong style={{ color: 'var(--text-secondary)' }}>{weekLogged}/7</strong> days</div>
+          {weekCompletions > 0 && (
+            <div>This week: <strong style={{ color: 'var(--success)' }}>{weekCompletions}</strong> tasks done</div>
+          )}
           {todayTaskCount > 0 && (
             <div>Today's tasks: <strong style={{ color: 'var(--accent)' }}>{todayTaskCount}</strong></div>
           )}

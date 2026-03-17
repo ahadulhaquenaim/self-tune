@@ -47,7 +47,7 @@ export interface AppData {
   backlog: BacklogItem[]
 }
 
-export type View = 'plan' | 'log' | 'weekly' | 'backlog' | 'categories'
+export type View = 'plan' | 'weekly' | 'backlog' | 'categories'
 
 export function calculateScore(plan: CategoryPlan[], log: CategoryLog[]): number {
   if (!plan.length) return 0

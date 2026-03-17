@@ -1,13 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
-  AppData, View, CategoryPlan, CategoryLog, DayEntry, BacklogItem,
-  calculateScore, getTodayString, getWeekDays
+  AppData, View, DayEntry, BacklogItem,
+  getTodayString, getWeekDays
 } from './types'
 import Sidebar from './components/Sidebar'
 import DailyPlanner from './components/DailyPlanner'
-import DailyLog from './components/DailyLog'
 import WeeklyReport from './components/WeeklyReport'
-import VictoryScreen from './components/VictoryScreen'
 import CategoryManager from './components/CategoryManager'
 import Backlog from './components/Backlog'
 
@@ -55,18 +53,6 @@ function ensureDayEntry(entry: Partial<DayEntry> | undefined, date: string): Day
   }
 }
 
-function computeStreak(days: Record<string, DayEntry>): number {
-  let streak = 0
-  for (let i = 0; i < 365; i++) {
-    const d = new Date()
-    d.setDate(d.getDate() - i)
-    const key = d.toISOString().split('T')[0]
-    if (days[key]?.isVictory) streak++
-    else if (i > 0) break
-  }
-  return streak
-}
-
 function randomId() {
   return Math.random().toString(36).slice(2, 12)
 }
@@ -74,8 +60,6 @@ function randomId() {
 export default function App() {
   const [data, setData] = useState<AppData | null>(null)
   const [view, setView] = useState<View>('plan')
-  const [showVictory, setShowVictory] = useState(false)
-  const [victoryEntry, setVictoryEntry] = useState<DayEntry | null>(null)
   const today = getTodayString()
 
   useEffect(() => {
@@ -105,31 +89,18 @@ export default function App() {
   }, [])
 
   // ── Day handlers ─────────────────────────────────────────────────────
-  const handleSavePlan = async (plan: CategoryPlan[]) => {
+  const handleCompleteTask = async (itemId: string) => {
     if (!data) return
     const entry = ensureDayEntry(data.days[today], today)
-    await persist({ ...data, days: { ...data.days, [today]: { ...entry, plan, plannedAt: new Date().toISOString() } } })
-  }
-
-  const handleSubmitLog = async (log: CategoryLog[], completedTaskIds: string[]) => {
-    if (!data) return
-    const entry = ensureDayEntry(data.days[today], today)
-    const score = calculateScore(entry.plan ?? [], log)
-    const isVictory = score >= 75
+    if (entry.completedTaskIds.includes(itemId)) return
     const updated: DayEntry = {
-      ...entry, log, isVictory, victoryScore: score,
-      completedTaskIds,
-      loggedAt: new Date().toISOString(),
+      ...entry,
+      completedTaskIds: [...entry.completedTaskIds, itemId],
     }
-    // Mark completed backlog items as done
-    let backlog = data.backlog
-    if (completedTaskIds.length) {
-      backlog = backlog.map(item =>
-        completedTaskIds.includes(item.id) ? { ...item, status: 'done' as const } : item
-      )
-    }
+    const backlog = data.backlog.map(i =>
+      i.id === itemId ? { ...i, status: 'done' as const } : i
+    )
     await persist({ ...data, days: { ...data.days, [today]: updated }, backlog })
-    if (isVictory) { setVictoryEntry(updated); setShowVictory(true) }
   }
 
   const handleSaveCategories = async (categories: AppData['categories']) => {
@@ -181,7 +152,6 @@ export default function App() {
   const handleDeleteBacklog = async (itemId: string) => {
     if (!data) return
     const backlog = data.backlog.filter(i => i.id !== itemId)
-    // also remove from all day entries
     const days = { ...data.days }
     Object.keys(days).forEach(date => {
       days[date] = {
@@ -204,77 +174,59 @@ export default function App() {
 
   const todayEntry = data.days[today]
   const weekDays = getWeekDays()
-  const victories = weekDays.filter(d => data.days[d]?.isVictory).length
-  const loggedDays = weekDays.filter(d => data.days[d]?.loggedAt).length
-  const streak = computeStreak(data.days)
+  const weekCompletions = weekDays.reduce((sum, d) => sum + (data.days[d]?.completedTaskIds?.length ?? 0), 0)
   const activeBacklog = data.backlog.filter(i => i.status === 'active').length
   const todayTaskIds = todayEntry?.taskIds ?? []
 
   return (
-    <>
-      {showVictory && victoryEntry && (
-        <VictoryScreen
-          entry={victoryEntry}
-          categories={data.categories}
-          onClose={() => setShowVictory(false)}
-          onViewWeekly={() => { setShowVictory(false); setView('weekly') }}
+    <div className="app-layout">
+      <Titlebar />
+      <div className="app-body">
+        <Sidebar
+          view={view}
+          onChangeView={setView}
+          todayEntry={todayEntry}
+          weekCompletions={weekCompletions}
+          backlogCount={activeBacklog}
+          todayTaskCount={todayTaskIds.length}
         />
-      )}
-      <div className="app-layout">
-        <Titlebar />
-        <div className="app-body">
-          <Sidebar
-            view={view}
-            onChangeView={setView}
-            todayEntry={todayEntry}
-            streak={streak}
-            weekVictories={victories}
-            weekLogged={loggedDays}
-            backlogCount={activeBacklog}
-            todayTaskCount={todayTaskIds.length}
-          />
-          <main className="main-content">
-            {view === 'plan' && (
-              <DailyPlanner
-                categories={data.categories}
-                todayEntry={todayEntry}
-                backlogItems={data.backlog}
-                onSave={handleSavePlan}
-                onUnscheduleTask={handleUnschedule}
-              />
-            )}
-            {view === 'log' && (
-              <DailyLog
-                categories={data.categories}
-                todayEntry={todayEntry}
-                backlogItems={data.backlog}
-                onSubmit={handleSubmitLog}
-              />
-            )}
-            {view === 'weekly' && (
-              <WeeklyReport categories={data.categories} days={data.days} />
-            )}
-            {view === 'backlog' && (
-              <Backlog
-                items={data.backlog}
-                categories={data.categories}
-                todayTaskIds={todayTaskIds}
-                onAddItem={handleAddBacklog}
-                onScheduleToday={handleScheduleToday}
-                onUnschedule={handleUnschedule}
-                onMarkDone={handleMarkDone}
-                onDelete={handleDeleteBacklog}
-              />
-            )}
-            {view === 'categories' && (
-              <CategoryManager
-                categories={data.categories}
-                onSave={handleSaveCategories}
-              />
-            )}
-          </main>
-        </div>
+        <main className="main-content">
+          {view === 'plan' && (
+            <DailyPlanner
+              categories={data.categories}
+              todayEntry={todayEntry}
+              backlogItems={data.backlog}
+              onUnscheduleTask={handleUnschedule}
+              onCompleteTask={handleCompleteTask}
+            />
+          )}
+          {view === 'weekly' && (
+            <WeeklyReport
+              categories={data.categories}
+              days={data.days}
+              backlog={data.backlog}
+            />
+          )}
+          {view === 'backlog' && (
+            <Backlog
+              items={data.backlog}
+              categories={data.categories}
+              todayTaskIds={todayTaskIds}
+              onAddItem={handleAddBacklog}
+              onScheduleToday={handleScheduleToday}
+              onUnschedule={handleUnschedule}
+              onMarkDone={handleMarkDone}
+              onDelete={handleDeleteBacklog}
+            />
+          )}
+          {view === 'categories' && (
+            <CategoryManager
+              categories={data.categories}
+              onSave={handleSaveCategories}
+            />
+          )}
+        </main>
       </div>
-    </>
+    </div>
   )
 }
